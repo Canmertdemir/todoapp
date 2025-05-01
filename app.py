@@ -1,5 +1,6 @@
 # pip install flask flask_sqlalchemy
 #python app.py
+#pip freeze > requirements.txt
 
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, request, jsonify, render_template
