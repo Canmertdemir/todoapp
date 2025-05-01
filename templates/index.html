@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Todo Uygulaması</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Yapılacaklar</h1>
+
+    <ul id="todo-list"></ul>
+
+    <form id="todo-form">
+        <input type="text" id="task" placeholder="Yeni görev yaz..." required>
+        <button type="submit">Ekle</button>
+    </form>
+
+    <script>
+        async function getTodos() {
+            const response = await fetch('/todos');
+            const todos = await response.json();
+
+            const list = document.getElementById('todo-list');
+            list.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.textContent = todo.task + (todo.done ? " ✅" : "");
+
+                // Sil butonu
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Sil';
+                deleteBtn.style.marginLeft = '10px';
+                deleteBtn.onclick = async () => {
+                    await fetch(`/todos/${todo.id}`, {
+                        method: 'DELETE'
+                    });
+                    getTodos();  // Listeyi güncelle
+                };
+
+                li.appendChild(deleteBtn);
+                list.appendChild(li);
+            });
+        }
+
+        document.getElementById('todo-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskInput = document.getElementById('task');
+            const task = taskInput.value;
+
+            await fetch('/todos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task })
+            });
+
+            taskInput.value = '';
+            getTodos();
+        });
+
+        getTodos();
+    </script>
+</body>
+</html>
